@@ -21,17 +21,51 @@ fn main() {
 
     log::info!("Hello, world!");
     
-    let mut r_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio2).unwrap();
+    let peripherals = Peripherals::take().unwrap();
+    let mut in_pin = PinDriver::output(peripherals.pins.gpio2).unwrap();
+    let mut r_pin = PinDriver::output(peripherals.pins.gpio4).unwrap();
+    let mut g_pin = PinDriver::output(peripherals.pins.gpio1).unwrap();
+    let mut b_pin = PinDriver::output(peripherals.pins.gpio3).unwrap();
+    log::info!("Pins declared");
+    let mut blink = false;
 
-    loop {                
-        log::info!("Arriba");
-        let _ = r_pin.set_high();
-        delay::FreeRtos::delay_ms(500);
-        log::info!("Abajo");
-        let _ = r_pin.set_low();
+    let mut turn = 0;
+    loop {            
+        if blink {
+            let _ = in_pin.set_low();
+            blink = false;
+            log::info!("SI");
+        } else {
+            let _ = in_pin.set_high();
+            blink = true;
+            log::info!("NO");
+        }
+        if turn == 0 {
+            log::info!("rojo");
+            let _ = r_pin.set_high();
+            let _ = g_pin.set_low();
+            let _ = b_pin.set_low();
+        } else if turn == 1 {
+            log::info!("verde");
+            let _ = r_pin.set_low();
+            let _ = g_pin.set_high();
+            let _ = b_pin.set_low();
+        } else if turn == 2 {
+            log::info!("azul");
+            let _ = r_pin.set_low();
+            let _ = g_pin.set_low();
+            let _ = b_pin.set_high();
+        }
+        turn += 1
+        if turn == 3 {
+            turn = 0;
+        } 
+
         delay::FreeRtos::delay_ms(500);
     }
 }
+
+fn 
 
 /*
     let mut r_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio2).unwrap();
