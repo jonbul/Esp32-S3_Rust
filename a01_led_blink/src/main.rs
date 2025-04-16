@@ -56,7 +56,7 @@ fn main() {
             let _ = g_pin.set_low();
             let _ = b_pin.set_high();
         }
-        turn += 1
+        turn += 1;
         if turn == 3 {
             turn = 0;
         } 
@@ -65,7 +65,7 @@ fn main() {
     }
 }
 
-fn 
+
 
 /*
     let mut r_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio2).unwrap();
