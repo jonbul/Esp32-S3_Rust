@@ -25,15 +25,35 @@ fn main() {
 
     loop {                
         log::info!("Arriba");
-        r_pin.set_high();
+        let _ = r_pin.set_high();
         delay::FreeRtos::delay_ms(500);
         log::info!("Abajo");
-        r_pin.set_low();
+        let _ = r_pin.set_low();
         delay::FreeRtos::delay_ms(500);
     }
-
-
-
-
-
 }
+
+/*
+    let mut r_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio2).unwrap();
+    let mut g_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio14).unwrap();
+    let mut b_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio19).unwrap();
+
+    loop {                
+        log::info!("1");
+        let _ = r_pin.set_high();
+        let _ = g_pin.set_low();
+        let _ = b_pin.set_low();
+        delay::FreeRtos::delay_ms(500);
+        log::info!("2");
+        let _ = r_pin.set_low();
+        let _ = g_pin.set_high();
+        let _ = b_pin.set_low();
+        delay::FreeRtos::delay_ms(500);
+        log::info!("2");
+        let _ = r_pin.set_low();
+        let _ = g_pin.set_low();
+        let _ = b_pin.set_high();
+        delay::FreeRtos::delay_ms(500);
+    }
+}
+*/
