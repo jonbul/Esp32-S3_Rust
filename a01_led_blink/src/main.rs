@@ -4,12 +4,12 @@
 
 //use esp_idf_sys as _; // If using the `binstart` feature of `esp-idf-sys`, always keep this module imported
 
+pub mod pin_controller;
+
 use esp_idf_svc::hal::delay;
 
-use esp_idf_hal::{
-    gpio::PinDriver,
-    peripherals::Peripherals
-};
+
+use esp_idf_hal::peripherals::Peripherals;
 
 fn main() {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -21,73 +21,26 @@ fn main() {
 
     log::info!("Hello, world!");
     
-    let peripherals = Peripherals::take().unwrap();
-    let mut in_pin = PinDriver::output(peripherals.pins.gpio2).unwrap();
-    let mut r_pin = PinDriver::output(peripherals.pins.gpio4).unwrap();
-    let mut g_pin = PinDriver::output(peripherals.pins.gpio1).unwrap();
-    let mut b_pin = PinDriver::output(peripherals.pins.gpio3).unwrap();
+    let peripherals:Peripherals = Peripherals::take().unwrap();
     log::info!("Pins declared");
-    let mut blink = false;
 
-    let mut turn = 0;
-    loop {            
-        if blink {
-            let _ = in_pin.set_low();
-            blink = false;
-            log::info!("SI");
+    let mut leds = pin_controller::pin_controller::Leds::new(peripherals);
+    let mut counter:i8 = 0;
+    loop {
+
+        let r = counter & 0b0001 != 0;
+        let g = counter & 0b0010 != 0;
+        let b = counter & 0b0100 != 0;
+
+        log::info!("counter {} -> r {} g {} b {}", counter, r, g, b);
+        let _ = leds.set_leds_and_blink(r, g, b);
+        delay::FreeRtos::delay_ms(500);
+
+        if counter < 7 {
+            counter += 1;
         } else {
-            let _ = in_pin.set_high();
-            blink = true;
-            log::info!("NO");
+            counter = 0;
         }
-        if turn == 0 {
-            log::info!("rojo");
-            let _ = r_pin.set_high();
-            let _ = g_pin.set_low();
-            let _ = b_pin.set_low();
-        } else if turn == 1 {
-            log::info!("verde");
-            let _ = r_pin.set_low();
-            let _ = g_pin.set_high();
-            let _ = b_pin.set_low();
-        } else if turn == 2 {
-            log::info!("azul");
-            let _ = r_pin.set_low();
-            let _ = g_pin.set_low();
-            let _ = b_pin.set_high();
-        }
-        turn += 1;
-        if turn == 3 {
-            turn = 0;
-        } 
-
-        delay::FreeRtos::delay_ms(500);
     }
+
 }
-
-
-
-/*
-    let mut r_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio2).unwrap();
-    let mut g_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio14).unwrap();
-    let mut b_pin = PinDriver::output(Peripherals::take().unwrap().pins.gpio19).unwrap();
-
-    loop {                
-        log::info!("1");
-        let _ = r_pin.set_high();
-        let _ = g_pin.set_low();
-        let _ = b_pin.set_low();
-        delay::FreeRtos::delay_ms(500);
-        log::info!("2");
-        let _ = r_pin.set_low();
-        let _ = g_pin.set_high();
-        let _ = b_pin.set_low();
-        delay::FreeRtos::delay_ms(500);
-        log::info!("2");
-        let _ = r_pin.set_low();
-        let _ = g_pin.set_low();
-        let _ = b_pin.set_high();
-        delay::FreeRtos::delay_ms(500);
-    }
-}
-*/
