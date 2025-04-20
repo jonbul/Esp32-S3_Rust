@@ -25,7 +25,7 @@ fn main() {
     log::info!("Pins declared");
 
     let mut leds = pin_controller::pin_controller::Leds::new(peripherals);
-    let mut counter:i8 = 0;
+    let mut counter:u8 = 0;
     loop {
 
         let r = counter & 0b0001 != 0;
