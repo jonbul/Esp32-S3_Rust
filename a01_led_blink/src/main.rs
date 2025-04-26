@@ -9,7 +9,7 @@ pub mod pin_controller;
 use esp_idf_svc::hal::delay;
 
 
-use esp_idf_hal::peripherals::Peripherals;
+use esp_idf_svc::hal::peripherals::Peripherals;
 
 fn main() {
     // It is necessary to call this function once. Otherwise some patches to the runtime

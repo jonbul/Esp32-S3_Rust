@@ -1,8 +1,8 @@
 
-use esp_idf_hal::gpio::PinDriver;
-use esp_idf_hal::ledc::{config::TimerConfig, LedcDriver, LedcTimerDriver};
-use esp_idf_hal::peripherals::Peripherals;
-use esp_idf_hal::prelude::*;
+use esp_idf_svc::hal::gpio::PinDriver;
+use esp_idf_svc::hal::ledc::{config::TimerConfig, LedcDriver, LedcTimerDriver};
+use esp_idf_svc::hal::peripherals::Peripherals;
+use esp_idf_svc::hal::prelude::*;
 use esp_idf_svc::hal::delay;
 
 fn main() {

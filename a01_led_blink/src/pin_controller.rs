@@ -1,6 +1,6 @@
 
 pub mod pin_controller {
-    use esp_idf_hal::{
+    use esp_idf_svc::hal::{
         gpio::{PinDriver, Gpio1, Gpio2, Gpio3, Gpio4, Output},
         peripherals::Peripherals
     };
@@ -43,11 +43,11 @@ pub mod pin_controller {
         
     }
 
-    fn to_level(b:bool) -> esp_idf_hal::gpio::Level {
+    fn to_level(b:bool) -> esp_idf_svc::hal::gpio::Level {
         if b {
-            esp_idf_hal::gpio::Level::High
+            esp_idf_svc::hal::gpio::Level::High
         } else {
-            esp_idf_hal::gpio::Level::Low
+            esp_idf_svc::hal::gpio::Level::Low
         }
     }
 }
