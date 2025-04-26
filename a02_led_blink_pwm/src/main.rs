@@ -1,4 +1,5 @@
 
+use esp_idf_hal::gpio::PinDriver;
 use esp_idf_hal::ledc::{config::TimerConfig, LedcDriver, LedcTimerDriver};
 use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::prelude::*;
@@ -16,6 +17,7 @@ fn main() {
     
 
     let peripherals = Peripherals::take().unwrap();
+    let button = PinDriver::input(peripherals.pins.gpio5).unwrap();
     let timer_driver_r = LedcTimerDriver::new(peripherals.ledc.timer0, &TimerConfig::default().frequency(25.kHz().into())).unwrap();
     let timer_driver_g = LedcTimerDriver::new(peripherals.ledc.timer1, &TimerConfig::default().frequency(25.kHz().into())).unwrap();
     let timer_driver_b = LedcTimerDriver::new(peripherals.ledc.timer2, &TimerConfig::default().frequency(25.kHz().into())).unwrap();
@@ -29,46 +31,63 @@ fn main() {
     let mut b_pwm_driver = PwmDriver::new(b_driver, 0);
     //let mut g_pwm_driver = PwmDriver::new(g_driver, 64);
     //let mut b_pwm_driver = PwmDriver::new(b_driver, 128);
+    let mut mode:i8 = 0;
+
+    let mut r_count:u8 = 0;
+    let mut g_count:u8 = 0;
+    let mut b_count:u8 = 0;
 
     loop {
-        r_pwm_driver.breath();
-        g_pwm_driver.breath();
-        b_pwm_driver.breath();
+        if button.is_high() {
+            log::info!("Button pressed");
+
+            while button.is_high() {
+                delay::FreeRtos::delay_ms(100);
+            }
+
+            log::info!("Button unpressed");
+
+            if mode == 0 {
+                mode = 1;
+            } else {
+                mode = 0;
+            }
+        }
+
+        if mode == 0 {
+            r_pwm_driver.breath();
+            g_pwm_driver.breath();
+            b_pwm_driver.breath();
+        } else if mode == 1 {
+            log::info!("r {} g {} b {}", r_count, g_count, b_count);
+
+            r_pwm_driver.set(r_count.into());
+            g_pwm_driver.set(g_count.into());
+            b_pwm_driver.set(b_count.into());
+
+            if r_count == 255 {
+                r_count = 0;
+                
+                if g_count == 255 {
+                    g_count = 0;
+
+                    if b_count == 255 {
+                        b_count = 0;
+                    } else {
+                        b_count += 1;
+                    }
+                } else {
+                    g_count += 1;
+                }
+                
+            } else {
+                r_count += 1;
+            }
+        }
         
         delay::FreeRtos::delay_ms(5);
     }
 
-    /*let mut r_count:u8 = 0;
-    let mut g_count:u8 = 0;
-    let mut b_count:u8 = 0;
-    loop {
-        log::info!("r {} g {} b {}", r_count, g_count, b_count);
-
-        r_pwm_driver.set(r_count.into());
-        g_pwm_driver.set(g_count.into());
-        b_pwm_driver.set(b_count.into());
-
-        if (r_count == 255) {
-            r_count = 0;
-            
-            if g_count == 255 {
-                g_count = 0;
-
-                if b_count == 255 {
-                    b_count = 0;
-                } else {
-                    b_count += 1;
-                }
-            } else {
-                g_count += 1;
-            }
-            
-        } else {
-            r_count += 1;
-        }
-
-        //delay::FreeRtos::delay_ms(5);
-    }*/
 }
 
 struct PwmDriver<'a> {
