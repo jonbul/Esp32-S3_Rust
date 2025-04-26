@@ -30,12 +30,12 @@ fn main() {
 
     let step = (max_duty - min_duty) / 10;
     loop {
-        for i in 1 ..=10 {
+        for i in 0 ..=10 {
             let _ = driver.set_duty(i * step + min_duty);
             delay::FreeRtos::delay_ms(100);
             log::info!("{} duty {}", i, driver.get_duty());
         }
-        for i in (1 ..=10).rev() {
+        for i in (0 ..=10).rev() {
             let _ = driver.set_duty(i * step + min_duty);
             delay::FreeRtos::delay_ms(100);
             log::info!("{} duty {}", i, driver.get_duty());
