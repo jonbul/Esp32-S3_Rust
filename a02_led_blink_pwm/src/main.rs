@@ -58,6 +58,7 @@ fn main() {
             r_pwm_driver.breath();
             g_pwm_driver.breath();
             b_pwm_driver.breath();
+            log::info!("r {} g {} b {}", r_pwm_driver.duty, g_pwm_driver.duty, b_pwm_driver.duty);
         } else if mode == 1 {
             log::info!("r {} g {} b {}", r_count, g_count, b_count);
 
