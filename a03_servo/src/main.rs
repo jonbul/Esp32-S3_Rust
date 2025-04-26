@@ -21,13 +21,21 @@ fn main() {
     let timer_driver = LedcTimerDriver::new(peripherals.ledc.timer0, &TimerConfig::default().frequency(50.Hz().into()).resolution(Resolution::Bits14)).unwrap();
     let mut driver: LedcDriver<'_> = LedcDriver::new(peripherals.ledc.channel0, timer_driver, peripherals.pins.gpio18).unwrap();
     let period_ticks = driver.get_max_duty(); // 16383
-    let min_duty = period_ticks / 20;        // 1ms -> 0°
-    let max_duty = period_ticks * 2 / 20;     // 2ms -> 180°
-
+    //let min_duty = period_ticks / 20;        // 1ms -> 0°
+    //let max_duty = period_ticks * 2 / 20;*/ 
+    let max_duty = 2118;    // 2ms -> 180°
+    let min_duty = 700;
     log::info!("period_ticks {} min_duty {} max_duty {}", period_ticks, min_duty, max_duty);
 
-    let _ = driver.set_duty(min_duty);
+    let _ = driver.set_duty(max_duty);
     delay::FreeRtos::delay_ms(1000);
+    log::info!("START!");
+    /*for i in 700 ..900 {
+        //let val = 1000 - i * 10;
+        let _ = driver.set_duty(i);
+        log::info!("duty {}", i);
+        delay::FreeRtos::delay_ms(100);
+    }*/
 
     //let step = (max_duty - min_duty) / 10;
     loop {

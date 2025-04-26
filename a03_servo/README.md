@@ -3,7 +3,7 @@ Movimiento de un servo motor
 
 
 ## Salidas
-    Servo: 6
+    Servo: 18
 
 ## Entradas
     Pulsador: 5
