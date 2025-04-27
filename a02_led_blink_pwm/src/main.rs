@@ -1,9 +1,8 @@
-
+use esp_idf_svc::hal::delay;
 use esp_idf_svc::hal::gpio::PinDriver;
 use esp_idf_svc::hal::ledc::{config::TimerConfig, LedcDriver, LedcTimerDriver};
 use esp_idf_svc::hal::peripherals::Peripherals;
 use esp_idf_svc::hal::prelude::*;
-use esp_idf_svc::hal::delay;
 
 fn main() {
     // It is necessary to call this function once. Otherwise some patches to the runtime
@@ -14,28 +13,54 @@ fn main() {
     esp_idf_svc::log::EspLogger::initialize_default();
 
     log::info!("Hello, world!");
-    
 
     let peripherals = Peripherals::take().unwrap();
     let button = PinDriver::input(peripherals.pins.gpio5).unwrap();
-    let timer_driver_r = LedcTimerDriver::new(peripherals.ledc.timer0, &TimerConfig::default().frequency(25.kHz().into())).unwrap();
-    let timer_driver_g = LedcTimerDriver::new(peripherals.ledc.timer1, &TimerConfig::default().frequency(25.kHz().into())).unwrap();
-    let timer_driver_b = LedcTimerDriver::new(peripherals.ledc.timer2, &TimerConfig::default().frequency(25.kHz().into())).unwrap();
-    
-    let r_driver = LedcDriver::new(peripherals.ledc.channel0, timer_driver_r, peripherals.pins.gpio4).unwrap();
-    let g_driver = LedcDriver::new(peripherals.ledc.channel1, timer_driver_g, peripherals.pins.gpio1).unwrap();
-    let b_driver = LedcDriver::new(peripherals.ledc.channel2, timer_driver_b, peripherals.pins.gpio3).unwrap();
+    let timer_driver_r = LedcTimerDriver::new(
+        peripherals.ledc.timer0,
+        &TimerConfig::default().frequency(25.kHz().into()),
+    )
+    .unwrap();
+    let timer_driver_g = LedcTimerDriver::new(
+        peripherals.ledc.timer1,
+        &TimerConfig::default().frequency(25.kHz().into()),
+    )
+    .unwrap();
+    let timer_driver_b = LedcTimerDriver::new(
+        peripherals.ledc.timer2,
+        &TimerConfig::default().frequency(25.kHz().into()),
+    )
+    .unwrap();
+
+    let r_driver = LedcDriver::new(
+        peripherals.ledc.channel0,
+        timer_driver_r,
+        peripherals.pins.gpio4,
+    )
+    .unwrap();
+    let g_driver = LedcDriver::new(
+        peripherals.ledc.channel1,
+        timer_driver_g,
+        peripherals.pins.gpio1,
+    )
+    .unwrap();
+    let b_driver = LedcDriver::new(
+        peripherals.ledc.channel2,
+        timer_driver_b,
+        peripherals.pins.gpio3,
+    )
+    .unwrap();
 
     let mut r_pwm_driver = PwmDriver::new(r_driver, 0);
     let mut g_pwm_driver = PwmDriver::new(g_driver, 0);
     let mut b_pwm_driver = PwmDriver::new(b_driver, 0);
     //let mut g_pwm_driver = PwmDriver::new(g_driver, 64);
     //let mut b_pwm_driver = PwmDriver::new(b_driver, 128);
-    let mut mode:i8 = 0;
+    let mut mode: i8 = 0;
 
-    let mut r_count:u8 = 0;
-    let mut g_count:u8 = 0;
-    let mut b_count:u8 = 0;
+    let mut r_count: u8 = 0;
+    let mut g_count: u8 = 0;
+    let mut b_count: u8 = 0;
 
     loop {
         if button.is_high() {
@@ -58,7 +83,12 @@ fn main() {
             r_pwm_driver.breath();
             g_pwm_driver.breath();
             b_pwm_driver.breath();
-            log::info!("r {} g {} b {}", r_pwm_driver.duty, g_pwm_driver.duty, b_pwm_driver.duty);
+            log::info!(
+                "r {} g {} b {}",
+                r_pwm_driver.duty,
+                g_pwm_driver.duty,
+                b_pwm_driver.duty
+            );
         } else if mode == 1 {
             log::info!("r {} g {} b {}", r_count, g_count, b_count);
 
@@ -68,7 +98,7 @@ fn main() {
 
             if r_count == 255 {
                 r_count = 0;
-                
+
                 if g_count == 255 {
                     g_count = 0;
 
@@ -80,15 +110,13 @@ fn main() {
                 } else {
                     g_count += 1;
                 }
-                
             } else {
                 r_count += 1;
             }
         }
-        
+
         delay::FreeRtos::delay_ms(5);
     }
-
 }
 
 struct PwmDriver<'a> {
@@ -111,7 +139,11 @@ impl<'a> PwmDriver<'a> {
     fn breath(&mut self) {
         let _ = self.driver.set_duty(self.duty);
 
-        self.duty = if self.up { self.duty + 1 } else { self.duty - 1 };
+        self.duty = if self.up {
+            self.duty + 1
+        } else {
+            self.duty - 1
+        };
 
         if self.duty >= self.max_duty || self.duty == 0 {
             self.up = !self.up;
